@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor Classification</title>
+    <!-- Include html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            min-height: 80vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .nav {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            padding: 12px 25px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .nav a:hover, .nav a.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page {
+            display: none;
+            padding: 50px;
+            min-height: 600px;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Home Page Styles */
+        .home-page {
+            text-align: center;
+            padding: 80px 40px;
+        }
+        
+        .welcome-section {
+            margin-bottom: 60px;
+        }
+        
+        .welcome-title {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.4em;
+            color: #6c757d;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 50px;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .action-btn.tertiary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        /* Upload Section Styles */
+        .upload-section {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            border: 3px dashed #e9ecef;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .upload-area {
+            text-align: center;
+            padding: 60px 30px;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        
+        .upload-area:hover {
+            background: #eef2ff;
+            border-color: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .upload-area.dragover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* PDF Button Styles */
+        .pdf-btn {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            width: fit-content;
+            min-width: 280px;
+        }
+        
+        .pdf-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(220, 53, 69, 0.4);
+        }
+        
+        .action-buttons-results {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0 20px 0;
+        }
+        
+        .result-section {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+        }
+        
+        .result-content {
+            flex: 1;
+        }
+        
+        .result-footer {
+            margin-top: auto;
+            padding-top: 40px;
+            text-align: center;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .prediction-result {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .confidence {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .probability-bar {
+            background: #e9ecef;
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+            height: 40px;
+        }
+        
+        .probability-fill {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .probability-fill.high-confidence {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .probability-fill.medium-confidence {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+        }
+        
+        .probability-fill.low-confidence {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+        }
+        
+        .uploaded-image {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .info-box {
+            background: #d1edff;
+            color: #055160;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #0dcaf0;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .class-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .sample-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .sample-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .sample-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .probability-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .probability-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 5px;
+        }
+
+        .corrected-percentage {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tumor-type {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-title {
+                font-size: 2.5em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .nav {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .action-buttons-results {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pdf-btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+
+        /* PDF specific styles */
+        .pdf-content {
+            padding: 25px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+        }
+        
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .pdf-title {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .pdf-subtitle {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .pdf-section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .pdf-section-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            padding-left: 12px;
+            font-weight: 600;
+        }
+        
+        .pdf-image-container {
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .pdf-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+        
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .pdf-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .pdf-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .pdf-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .pdf-disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Brain Tumor Classification</h1>
+            <p>AI-Powered MRI Analysis for Brain Tumor Detection</p>
+        </div>
+        
+        <div class="nav">
+            <a href="#home" class="nav-link active" data-page="home">🏠 Home</a>
+            <a href="#upload" class="nav-link" data-page="upload">📤 Upload MRI</a>
+            <a href="#results" class="nav-link" data-page="results">📊 Results</a>
+            <a href="#about" class="nav-link" data-page="about">ℹ️ About</a>
+        </div>
+
+        <!-- Home Page -->
+        <div id="home" class="page active home-page">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Your Health Is Our Responsibility</h1>
+                <p class="welcome-subtitle">
+                    Advanced AI-powered brain tumor detection system designed to assist healthcare professionals 
+                    in early diagnosis and treatment planning.
+                </p>
+                
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="showPage('upload')">
+                        🧠 Start Analysis
+                    </button>
+                    <button class="action-btn secondary" onclick="showPage('about')">
+                        ℹ️ Learn More
+                    </button>
+                    <button class="action-btn tertiary" onclick="showPage('results')">
+                        📊 View Demo
+                    </button>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Fast & Accurate</h3>
+                    <p class="feature-description">
+                        Get instant AI-powered analysis with high accuracy rates, helping in early detection 
+                        and timely intervention.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Safe & Secure</h3>
+                    <p class="feature-description">
+                        Your medical data privacy is our priority. All analyses are processed securely with 
+                        complete confidentiality.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3 class="feature-title">Advanced Technology</h3>
+                    <p class="feature-description">
+                        Utilizing state-of-the-art deep learning algorithms trained on thousands of MRI scans 
+                        for reliable results.
+                    </p>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top: 50px;">
+                <strong>⚠️ Medical Disclaimer</strong>
+                <p style="margin-top: 10px; line-height: 1.6;">
+                    This tool is for educational and research purposes only. It is NOT intended for medical diagnosis. 
+                    Always consult qualified healthcare professionals for medical decisions and treatment.
+                </p>
+            </div>
+        </div>
+
+        <!-- Upload MRI Page -->
+        <div id="upload" class="page">
+            <div class="upload-section">
+                <h2 style="margin-bottom: 25px; color: #2c3e50;">📤 Upload MRI Image</h2>
+                <p style="margin-bottom: 20px; color: #6c757d;">Supported formats: JPG, PNG, BMP</p>
+                
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3 style="margin-bottom: 10px; color: #2c3e50;">Click to Upload MRI Image</h3>
+                    <p style="color: #6c757d;">or drag and drop your file here</p>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png,.bmp" onchange="handleFileSelect(event)">
+                
+                <div id="fileName" style="margin: 20px 0; font-weight: bold; font-size: 1.1em; min-height: 24px; color: #495057;"></div>
+                
+                <button class="btn" onclick="analyzeImage()" id="analyzeBtn" disabled>
+                    🔍 Analyze MRI Image
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <h3 style="margin-bottom: 10px; color: #2c3e50;">Analyzing MRI Scan</h3>
+                    <p style="color: #6c757d;">Processing image with AI model... Please wait</p>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 How to Use:</strong><br><br>
+                    1. <strong>Upload</strong> a brain MRI image (JPG, PNG, BMP)<br>
+                    2. <strong>Click Analyze</strong> to process with AI<br>
+                    3. <strong>View Results</strong> with detailed probabilities<br>
+                    4. <strong>Consult Professionals</strong> for medical diagnosis
+                </div>
+
+                <!-- Sample Images for Testing -->
+                <div class="sample-images">
+                    <div class="sample-btn" onclick="loadSampleImage('glioma')">🧠 Test Glioma</div>
+                    <div class="sample-btn" onclick="loadSampleImage('meningioma')">🧠 Test Meningioma</div>
+                    <div class="sample-btn" onclick="loadSampleImage('pituitary')">🧠 Test Pituitary</div>
+                    <div class="sample-btn" onclick="loadSampleImage('notumor')">✅ Test No Tumor</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="results" class="page">
+            <div class="result-section">
+                <h2 style="margin-bottom: 25px; color: #2c3e50;">📊 Analysis Results</h2>
+                
+                <div class="result-content" id="resultContainer">
+                    <div class="result-card">
+                        <h3 style="margin-bottom: 15px; color: #2c3e50;">No Analysis Yet</h3>
+                        <p style="margin-bottom: 15px; color: #6c757d;">
+                            Upload and analyze an MRI image on the Upload page to see results here.
+                        </p>
+                        <p style="color: #6c757d;">
+                            The model can detect and classify four types of brain conditions:
+                        </p>
+                        <ul style="margin: 15px 0 15px 20px; color: #495057;">
+                            <li><strong>Glioma:</strong> Tumors in brain's glial cells</li>
+                            <li><strong>Meningioma:</strong> Tumors in the meninges</li>
+                            <li><strong>Pituitary:</strong> Pituitary gland tumors</li>
+                            <li><strong>No Tumor:</strong> Normal brain MRI</li>
+                        </ul>
+                        
+                        <button class="btn" onclick="showPage('upload')" style="width: auto; padding: 12px 30px;">
+                            📤 Go to Upload Page
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PDF Export Button at Bottom -->
+                <div class="result-footer" id="pdfButtons" style="display: none;">
+                    <div class="action-buttons-results">
+                        <button class="pdf-btn" onclick="generateClinicalReport()">
+                            📋 Generate Clinical Report
+                        </button>
+                        <button class="btn" onclick="showPage('upload')" style="width: auto; padding: 18px 35px; font-size: 1.1em;">
+                            🔄 New Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="about-content">
+                <div class="feature-card">
+                    <h2>ℹ️ About Brain Tumor Classification</h2>
+                    <p style="margin: 20px 0; line-height: 1.7; color: #495057;">
+                        This platform utilizes advanced artificial intelligence to assist in the preliminary 
+                        analysis of brain MRI scans. Our deep learning model has been trained on extensive 
+                        datasets to recognize patterns associated with different types of brain tumors.
+                    </p>
+
+                    <h3 style="margin: 30px 0 20px 0; color: #2c3e50;">🧠 Types of Brain Tumors We Detect</h3>
+
+                    <div class="tumor-type">
+                        <h3>🧬 Glioma</h3>
+                        <p style="line-height: 1.6; color: #495057;">
+                            Gliomas are tumors that arise from glial cells in the brain and spinal cord. 
+                            They can be classified by cell type, grade, and location. Gliomas account for 
+                            about 30% of all brain and central nervous system tumors.
+                        </p>
+                    </div>
+
+                    <div class="tumor-type">
+                        <h3>🛡️ Meningioma</h3>
+                        <p style="line-height: 1.6; color: #495057;">
+                            Meningiomas are tumors that develop from the meninges, the protective layers 
+                            surrounding the brain and spinal cord. Most meningiomas are benign and grow slowly, 
+                            but they can cause symptoms by pressing on the brain or spinal cord.
+                        </p>
+                    </div>
+
+                    <div class="tumor-type">
+                        <h3>🎯 Pituitary Tumors</h3>
+                        <p style="line-height: 1.6; color: #495057;">
+                            Pituitary tumors are abnormal growths in the pituitary gland, which controls 
+                            hormone production in the body. These tumors can cause hormonal imbalances and 
+                            various symptoms depending on their size and hormone activity.
+                        </p>
+                    </div>
+
+                    <div class="tumor-type">
+                        <h3>✅ No Tumor</h3>
+                        <p style="line-height: 1.6; color: #495057;">
+                            This classification indicates that no tumor was detected in the MRI scan. 
+                            The brain structures appear within normal limits with no evidence of mass 
+                            lesions or significant abnormalities.
+                        </p>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ Medical Disclaimer</strong>
+                        <p style="margin-top: 10px; line-height: 1.6;">
+                            <strong>This tool is for educational and research purposes only.</strong><br><br>
+                            It is NOT intended for medical diagnosis, treatment, or clinical decision-making. 
+                            Always consult qualified healthcare professionals and radiologists for accurate 
+                            medical diagnosis and treatment planning.<br><br>
+                            The AI model provides probabilistic predictions that should be verified by 
+                            medical experts through proper clinical evaluation and additional diagnostic tests.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let currentResults = null;
+        let currentImageUrl = null;
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+
+            // If showing results page and we have results, display them
+            if (pageId === 'results' && currentResults) {
+                displayResults(currentResults);
+            }
+        }
+
+        // Navigation event listeners
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pageId = this.getAttribute('data-page');
+                showPage(pageId);
+            });
+        });
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = `Selected: ${file.name}`;
+                document.getElementById('analyzeBtn').disabled = false;
+                
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImageUrl = e.target.result;
+                    // Switch to results page and show preview
+                    showPage('results');
+                    document.getElementById('resultContainer').innerHTML = `
+                        <div class="result-card">
+                            <h3 style="margin-bottom: 15px; color: #2c3e50;">Ready for Analysis</h3>
+                            <p style="margin-bottom: 15px; color: #6c757d;">Image: <strong>${file.name}</strong></p>
+                            <img src="${e.target.result}" class="uploaded-image" alt="Uploaded MRI">
+                            <p style="margin-top: 15px; color: #28a745; font-weight: 600;">
+                                ✅ Image loaded successfully! Click "Analyze MRI Image" on the Upload page to process.
+                            </p>
+                            <button class="btn" onclick="showPage('upload')" style="width: auto; padding: 12px 30px; margin-top: 20px;">
+                                🔍 Go Analyze This Image
+                            </button>
+                        </div>
+                    `;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function analyzeImage() {
+            if (!selectedFile) {
+                showError('Please select an image first.');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('analyzeBtn').disabled = true;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analyzeBtn').disabled = false;
+                
+                if (data.success) {
+                    currentResults = data;
+                    showPage('results');
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'An error occurred during analysis.');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('analyzeBtn').disabled = false;
+                showError('Network error: ' + error.message);
+            });
+        }
+        
+        function displayResults(data) {
+            // Fix percentage formatting
+            const fixedProbabilities = data.probabilities.map(item => {
+                let probValue = parseFloat(item.probability.replace('%', ''));
+                // If percentage is too high (like 5727%), divide by 100
+                if (probValue > 100) {
+                    probValue = probValue / 100;
+                }
+                return {
+                    class: item.class,
+                    probability: probValue,
+                    display: probValue.toFixed(2) + '%'
+                };
+            });
+
+            let html = `
+                <div class="result-card">
+                    <div class="prediction-result">
+                        <span style="font-size: 1.5em;">🎯</span>
+                        Prediction: ${data.prediction.toUpperCase()}
+                    </div>
+                    <div class="confidence">
+                        📊 Confidence: ${data.confidence}
+                    </div>
+                    <img src="${data.image_url}" class="uploaded-image" alt="Analyzed MRI">
+                    ${data.note ? `<div class="info-box">${data.note}</div>` : ''}
+                </div>
+                
+                <div class="result-card">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">📈 Detailed Probabilities</h3>
+            `;
+            
+            // Sort probabilities from highest to lowest
+            const sortedProbabilities = [...fixedProbabilities].sort((a, b) => 
+                b.probability - a.probability
+            );
+            
+            sortedProbabilities.forEach(item => {
+                const probability = item.probability;
+                const percentage = probability;
+                const isTopPrediction = item.class === data.prediction;
+                
+                let confidenceClass = '';
+                if (probability > 70) confidenceClass = 'high-confidence';
+                else if (probability > 40) confidenceClass = 'medium-confidence';
+                else confidenceClass = 'low-confidence';
+                
+                html += `
+                    <div style="margin: 20px 0;">
+                        <div class="class-label">
+                            <span>${isTopPrediction ? '👑 ' : ''}${item.class.toUpperCase()}</span>
+                            <span class="corrected-percentage">${item.display}</span>
+                        </div>
+                        <div class="probability-bar">
+                            <div class="probability-fill ${confidenceClass}" style="width: ${percentage}%">
+                                ${percentage.toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add probability summary
+            html += `
+                    <div class="probability-item">
+                        <strong>Probability Summary:</strong>
+                        <div class="probability-value">
+                            ${sortedProbabilities.map(item => 
+                                `<div>${item.class}: <span class="corrected-percentage">${item.display}</span></div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add medical interpretation
+            html += `
+                <div class="result-card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">💡 Medical Interpretation</h3>
+                    <p style="margin-bottom: 15px; color: #495057; line-height: 1.8;">
+                        ${getMedicalInterpretation(data.prediction)}
+                    </p>
+                    
+                    <div class="warning-box">
+                        <strong>⚠️ Important Medical Disclaimer:</strong><br><br>
+                        • This AI tool is for educational and research purposes only<br>
+                        • <strong>NOT for medical diagnosis or treatment decisions</strong><br>
+                        • Always consult qualified healthcare professionals<br>
+                        • Results should be verified by medical experts
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('resultContainer').innerHTML = html;
+            
+            // Show PDF buttons at the bottom
+            document.getElementById('pdfButtons').style.display = 'block';
+        }
+        
+        function getMedicalInterpretation(prediction) {
+            const interpretations = {
+                'glioma': 'Glioma type tumor detected. Gliomas are tumors that originate in the brain\'s glial cells. They can range from low-grade (slow-growing) to high-grade (fast-growing) tumors. Further evaluation with a neurologist and additional imaging studies like MRI with contrast are recommended for proper diagnosis and treatment planning.',
+                'meningioma': 'Meningioma type tumor detected. Meningiomas are tumors that develop from the meninges, the protective layers surrounding the brain and spinal cord. Most meningiomas are benign and slow-growing. Consultation with a neurosurgeon is advised for proper evaluation and to discuss monitoring or treatment options.',
+                'pituitary': 'Pituitary tumor detected. These tumors affect the pituitary gland, which controls hormone production in the body. They can cause hormonal imbalances, vision problems, and other symptoms depending on their size and hormone activity. Endocrine evaluation and monitoring are recommended.',
+                'notumor': 'No tumor detected - MRI appears normal. The brain structures appear within normal limits with no evidence of mass lesions, significant abnormalities, or tumor growth. Regular medical follow-up and routine health screenings are recommended as part of comprehensive healthcare maintenance.'
+            };
+            return interpretations[prediction] || 'Analysis complete. The AI model has processed the MRI image and provided a classification based on the visual patterns detected. Please consult with medical professionals for accurate diagnosis and appropriate next steps.';
+        }
+        
+        function showError(message) {
+            document.getElementById('resultContainer').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                    <button class="btn" onclick="showPage('upload')" style="width: auto; padding: 10px 20px; margin-top: 15px;">
+                        📤 Back to Upload
+                    </button>
+                </div>
+            `;
+        }
+        
+        function loadSampleImage(type) {
+            // Create a mock file object for sample testing
+            selectedFile = {
+                name: `sample_${type}_mri.jpg`,
+                type: 'image/jpeg'
+            };
+            
+            document.getElementById('fileName').textContent = `Selected: sample_${type}_mri.jpg`;
+            document.getElementById('analyzeBtn').disabled = false;
+            
+            // Show sample preview on results page
+            showPage('results');
+            document.getElementById('resultContainer').innerHTML = `
+                <div class="result-card">
+                    <h3 style="margin-bottom: 15px; color: #2c3e50;">Sample Analysis</h3>
+                    <p style="margin-bottom: 15px; color: #6c757d;">Testing: <strong>${type.replace('_', ' ')} MRI</strong></p>
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 60px; text-align: center; border-radius: 12px;">
+                        <div style="font-size: 5em; color: white;">🧠</div>
+                        <p style="color: white; font-size: 1.2em; margin-top: 15px; font-weight: 600;">
+                            Sample ${type.replace('_', ' ')} MRI Image
+                        </p>
+                    </div>
+                    <p style="margin-top: 20px; color: #28a745; font-weight: 600;">
+                        ✅ Sample loaded! Click "Analyze MRI Image" on the Upload page to test the AI model.
+                    </p>
+                    <button class="btn" onclick="showPage('upload')" style="width: auto; padding: 12px 30px; margin-top: 20px;">
+                        🔍 Go Analyze This Sample
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Generate Clinical Report function
+        function generateClinicalReport() {
+            if (!currentResults) {
+                alert('No analysis results to export.');
+                return;
+            }
+            
+            // Create PDF content
+            const pdfContent = document.createElement('div');
+            pdfContent.className = 'pdf-content';
+            
+            // Get current date and time
+            const currentDate = new Date();
+            const formattedDate = currentDate.toLocaleDateString();
+            const formattedTime = currentDate.toLocaleTimeString();
+            
+            // Create PDF structure with clinical report format
+            pdfContent.innerHTML = `
+                <div class="pdf-header">
+                    <h1 class="pdf-title">CLINICAL ANALYSIS REPORT</h1>
+                    <p class="pdf-subtitle">Brain Tumor Classification System</p>
+                    <p class="pdf-subtitle">Report Generated: ${formattedDate} at ${formattedTime}</p>
+                </div>
+                
+                <div class="pdf-section">
+                    <h2 class="pdf-section-title">PATIENT MRI SCAN</h2>
+                    <div class="pdf-image-container">
+                        <img src="${currentResults.image_url}" class="pdf-image" alt="Brain MRI Scan">
+                        <p style="margin-top: 10px; font-size: 14px; color: #6c757d;">Original MRI Image</p>
+                    </div>
+                </div>
+                
+                <div class="pdf-section">
+                    <h2 class="pdf-section-title">AI ANALYSIS RESULTS</h2>
+                    <table class="pdf-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Primary Prediction</strong></td>
+                            <td>${currentResults.prediction.toUpperCase()}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Confidence Level</strong></td>
+                            <td>${currentResults.confidence}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Analysis Date</strong></td>
+                            <td>${formattedDate}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="pdf-section">
+                    <h2 class="pdf-section-title">DETAILED PROBABILITY DISTRIBUTION</h2>
+                    <table class="pdf-table">
+                        <tr>
+                            <th>Tumor Type</th>
+                            <th>Probability</th>
+                            <th>Confidence Level</th>
+                        </tr>
+                        ${currentResults.probabilities.map(item => {
+                            const prob = parseFloat(item.probability.replace('%', ''));
+                            let confidenceLevel = 'Low';
+                            if (prob > 70) confidenceLevel = 'High';
+                            else if (prob > 40) confidenceLevel = 'Medium';
+                            
+                            return `
+                                <tr>
+                                    <td>${item.class.toUpperCase()}</td>
+                                    <td>${item.probability}</td>
+                                    <td>${confidenceLevel}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                </div>
+                
+                <div class="pdf-section">
+                    <h2 class="pdf-section-title">MEDICAL INTERPRETATION</h2>
+                    <p style="line-height: 1.6; margin-bottom: 15px;">
+                        ${getMedicalInterpretation(currentResults.prediction)}
+                    </p>
+                </div>
+                
+                <div class="pdf-section">
+                    <h2 class="pdf-section-title">RECOMMENDATIONS</h2>
+                    <ul style="line-height: 1.6; margin-left: 20px;">
+                        <li>Consult with a qualified neurologist or neurosurgeon</li>
+                        <li>Consider additional imaging studies (MRI with contrast, CT scan)</li>
+                        <li>Discuss findings with a multidisciplinary tumor board</li>
+                        <li>Follow up with appropriate medical specialists</li>
+                        <li>Consider biopsy for definitive diagnosis if indicated</li>
+                    </ul>
+                </div>
+                
+                <div class="pdf-disclaimer">
+                    <strong>IMPORTANT MEDICAL DISCLAIMER:</strong><br><br>
+                    This report is generated by an artificial intelligence system for educational and research purposes only. 
+                    The analysis provided is based on pattern recognition in MRI images and should NOT be used for medical diagnosis, 
+                    treatment decisions, or clinical management. Always consult qualified healthcare professionals, radiologists, 
+                    and medical specialists for accurate diagnosis and appropriate treatment planning. The AI model provides 
+                    probabilistic predictions that require verification through proper clinical evaluation and additional diagnostic tests.
+                </div>
+            `;
+            
+            // PDF options
+            const options = {
+                margin: 15,
+                filename: `clinical_report_brain_tumor_${formattedDate.replace(/\//g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
+            };
+            
+            // Show loading message
+            const originalText = document.querySelector('.pdf-btn').textContent;
+            document.querySelector('.pdf-btn').textContent = '🔄 Generating Report...';
+            document.querySelector('.pdf-btn').disabled = true;
+            
+            // Generate PDF
+            html2pdf().set(options).from(pdfContent).save().then(() => {
+                // Restore button text
+                document.querySelector('.pdf-btn').textContent = originalText;
+                document.querySelector('.pdf-btn').disabled = false;
+            });
+        }
+        
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                document.getElementById('fileInput').files = e.dataTransfer.files;
+                handleFileSelect({target: {files: e.dataTransfer.files}});
+            }
+        });
+        
+        // Initialize with home page
+        console.log("🧠 Brain Tumor Classification Web App Loaded");
+        console.log("📁 Ready for MRI image upload and analysis");
+    </script>
+</body>
+</html>
